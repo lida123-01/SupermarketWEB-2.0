@@ -6,49 +6,64 @@ using SupermarketWEB.Models;
 
 namespace SupermarketWEB.Pages.Categories
 {
-    public class DeleteModel : PageModel
+    public class EditModel : PageModel
     {
 
         private readonly SupermarketContext _context;
-        public DeleteModel(SupermarketContext context)
+        public EditModel(SupermarketContext context)
         {
             _context = context;
         }
-
+        
         [BindProperty]
         public Category Category { get; set; } = default!;
-
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null || _context.Categories == null)
             {
                 return NotFound();
             }
+
             var category = await _context.Categories.FirstOrDefaultAsync(m => m.Id == id);
+
             if (category == null)
             {
                 return NotFound();
             }
-            else
+            Category = category;
+            return Page();
+        }
+
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
             {
-                Category = category;
                 return Page();
             }
-        }
-        public async Task<IActionResult> OnPostAsync(int? id)
-        {
-            if (id == null || _context.Categories == null)
+
+            _context.Attach(Category).State = EntityState.Modified;
+
+            try
             {
-                return NotFound();
-            }
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                Category = category;
-                _context.Categories.Remove(Category);
                 await _context.SaveChangesAsync();
             }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoryExists(Category.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             return RedirectToPage("./Index");
+        }
+        private bool CategoryExists(int id)
+        {
+            return (_context.Categories?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
