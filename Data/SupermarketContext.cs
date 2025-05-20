@@ -10,6 +10,6 @@ namespace SupermarketWEB.Data
         }
 
         public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categorries { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }
