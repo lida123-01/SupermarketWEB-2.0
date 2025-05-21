@@ -12,6 +12,9 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Categories[0].Id)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Categories[0].Name)
             </th>
             <th>
@@ -25,19 +28,19 @@
         {
             <tr>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item. Description)
+                    @Html.DisplayFor(modelItem => item.Description)
                 </td>
-                    <td>
-                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-warning"> Edit </a>
-                        <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger"> Delete </a>
-                    </td>
                 <td>
-            </td>
-        </tr>
+                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-warning"> Edit </a>
+                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger"> Delete </a>
+                </td>
+            </tr>
         }
     </tbody>
-</table
-
+</table>
