@@ -3,11 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SupermarketWEB.Models;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using SupermarketWEB.Data;
 
 namespace SupermarketWEB.Pages.Account
 {
     public class LoginModel : PageModel
     {
+
+        private readonly SupermarketContext _context;
+
+        public LoginModel(SupermarketContext context)
+        {
+            _context = context;
+        }
 
         [BindProperty]
         public User User { get; set; }
@@ -16,25 +25,29 @@ namespace SupermarketWEB.Pages.Account
         {
         }
 
-
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
 
-            if (User.Email == "correo@gmail.com" && User.Password == "12345")
+            // Buscar usuario en base de datos
+            var userInDb = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == User.Email && u.Password == User.Password);
+
+            if (userInDb != null)
             {
-                // Se crea los Claim, datos a almacenar en la Cookie
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, "admin"),
-                    new Claim(ClaimTypes.Email, User.Email),
+                    new Claim(ClaimTypes.Name, userInDb.Email),
+                    new Claim(ClaimTypes.Email, userInDb.Email),
                 };
                 var identity = new ClaimsIdentity(claims, "MyCookieAuth");
-                ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+                var claimsPrincipal = new ClaimsPrincipal(identity);
 
                 await HttpContext.SignInAsync("MyCookieAuth", claimsPrincipal);
                 return RedirectToPage("/Index");
             }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt");
             return Page();
         }
     }
